@@ -3,7 +3,7 @@ builder = "nixpacks"
 
 [deploy]
 startCommand = "npm run db:migrate && node dist/src/main"
-healthcheckPath = "health"
+healthcheckPath = "/api/health"
 healthcheckTimeout = 30
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
