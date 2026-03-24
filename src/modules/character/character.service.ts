@@ -3,13 +3,13 @@ import { CharacterRepository } from './character.repository';
 import { CreateCharacterDto } from './dto/create-character.dto';
 import { UpdateCharacterDto } from './dto/update-character.dto';
 import { buildDefaultCharacter } from './character.defaults';
-import { CharacterRecord } from '../../database/schema';
+import {BasicCharacterRecord, CharacterRecord} from '../../database/schema';
 
 @Injectable()
 export class CharacterService {
     constructor(private readonly repo: CharacterRepository) {}
 
-    findAll(): Promise<CharacterRecord[]> {
+    findAll(): Promise<BasicCharacterRecord[]> {
         return this.repo.findAll();
     }
 

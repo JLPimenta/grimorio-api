@@ -58,3 +58,4 @@ export const characters = pgTable('characters', {
 
 export type CharacterRecord = typeof characters.$inferSelect;
 export type NewCharacterRecord = typeof characters.$inferInsert;
+export type BasicCharacterRecord = Pick<CharacterRecord, 'id' | 'name' | 'class' | 'subclass' | 'species' | 'level' | 'hitPoints' | 'createdAt' | 'updatedAt' | 'userId'>

@@ -1,21 +1,43 @@
 import {Inject, Injectable} from '@nestjs/common';
 import {eq} from 'drizzle-orm';
 import {DRIZZLE, type DrizzleDB} from '../../database/database.module';
-import {CharacterRecord, characters, NewCharacterRecord,} from '../../database/schema';
+import {BasicCharacterRecord, CharacterRecord, characters, NewCharacterRecord,} from '../../database/schema';
 
 @Injectable()
 export class CharacterRepository {
     constructor(@Inject(DRIZZLE) private readonly db: DrizzleDB) {}
 
-    findAll(userId?: string): Promise<CharacterRecord[]> {
+    findAll(userId?: string): Promise<BasicCharacterRecord[]> {
         if (userId) {
             return this.db
-                .select()
+                .select({
+                    id: characters.id,
+                    name: characters.name,
+                    class: characters.class,
+                    subclass: characters.subclass,
+                    species: characters.species,
+                    level: characters.level,
+                    hitPoints: characters.hitPoints,
+                    createdAt: characters.createdAt,
+                    updatedAt: characters.updatedAt,
+                    userId: characters.userId,
+                })
                 .from(characters)
                 .where(eq(characters.userId, userId));
         }
         return this.db
-            .select()
+            .select({
+                id: characters.id,
+                name: characters.name,
+                class: characters.class,
+                subclass: characters.subclass,
+                species: characters.species,
+                level: characters.level,
+                hitPoints: characters.hitPoints,
+                createdAt: characters.createdAt,
+                updatedAt: characters.updatedAt,
+                userId: characters.userId,
+            })
             .from(characters)
             .orderBy(characters.updatedAt);
     }
