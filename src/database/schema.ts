@@ -1,0 +1,60 @@
+import {boolean, integer, jsonb, pgTable, timestamp, uuid, varchar,} from 'drizzle-orm/pg-core';
+
+export const characters = pgTable('characters', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: varchar('name', {length: 255}).notNull(),
+    class: varchar('class', {length: 100}).default(''),
+    level: integer('level').notNull().default(1),
+    species: varchar('species', {length: 100}).default(''),
+    subclass: varchar('subclass', {length: 100}).default(''),
+    background: varchar('background', {length: 100}).default(''),
+    xp: integer('xp').notNull().default(0),
+
+    abilities: jsonb('abilities').notNull(),
+    skills: jsonb('skills').notNull(),
+
+    armorClass: integer('armor_class').notNull().default(10),
+    hitPoints: jsonb('hit_points').notNull(),
+    hitDice: jsonb('hit_dice').notNull(),
+    deathSaves: jsonb('death_saves').notNull(),
+    speed: integer('speed').notNull().default(30),
+    size: varchar('size', {length: 50}).default('Médio'),
+    heroicInspiration: boolean('heroic_inspiration').default(false),
+
+    weapons: jsonb('weapons').notNull().default([]),
+    spells: jsonb('spells').notNull().default([]),
+    spellSlots: jsonb('spell_slots').notNull(),
+    spellcastingAbility: varchar('spellcasting_ability', {length: 50}).default(''),
+
+    inventory: jsonb('inventory').notNull().default([]),
+    attunedItems: jsonb('attuned_items').notNull().default([]),
+    coins: jsonb('coins').notNull(),
+
+    classFeatures: jsonb('class_features').notNull().default([]),
+    speciesTraits: varchar('species_traits', {length: 2000}).default(''),
+    feats: varchar('feats', {length: 2000}).default(''),
+    armorTraining: varchar('armor_training', {length: 255}).default(''),
+    weaponTraining: varchar('weapon_training', {length: 255}).default(''),
+    toolTraining: varchar('tool_training', {length: 255}).default(''),
+
+    personalityAndHistory: varchar('personality_and_history', {length: 5000}).default(''),
+    alignment: varchar('alignment', {length: 100}).default(''),
+    languages: varchar('languages', {length: 500}).default(''),
+
+    campaignNotes: jsonb('campaign_notes').notNull().default([]),
+    customFields: jsonb('custom_fields').notNull().default([]),
+
+    bonuses: jsonb('bonuses').notNull().default({
+        proficiencyBonus: 0,
+        initiative: 0,
+        savingThrows: {},
+        skills: {},
+    }),
+
+    userId: uuid('user_id'),           // nullable — fase 2
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export type CharacterRecord = typeof characters.$inferSelect;
+export type NewCharacterRecord = typeof characters.$inferInsert;
