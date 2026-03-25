@@ -7,8 +7,35 @@ class EnvironmentVariables {
     DATABASE_URL: string;
 
     @IsString()
+    JWT_SECRET: string;
+
+    @IsString()
     @IsOptional()
-    FRONTEND_URL: string;
+    JWT_EXPIRES_IN: string = '7d';
+
+    @IsString()
+    @IsOptional()
+    GOOGLE_CLIENT_ID: string;
+
+    @IsString()
+    @IsOptional()
+    MAIL_HOST: string;
+
+    @IsString()
+    @IsOptional()
+    MAIL_USER: string;
+
+    @IsString()
+    @IsOptional()
+    MAIL_PASS: string;
+
+    @IsString()
+    @IsOptional()
+    MAIL_FROM: string = 'Grimório <noreply@grimorio.app>';
+
+    @IsString()
+    @IsOptional()
+    FRONTEND_URL: string = 'http://localhost:5173';
 
     @IsInt()
     @IsOptional()
