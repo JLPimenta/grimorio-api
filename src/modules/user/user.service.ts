@@ -1,15 +1,26 @@
-import {ConflictException, Injectable, NotFoundException, UnauthorizedException} from '@nestjs/common';
+import {
+    ConflictException,
+    forwardRef,
+    Inject,
+    Injectable,
+    NotFoundException,
+    UnauthorizedException
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import {UserRepository} from './user.repository';
 import {UpdateUserDto} from './dto/update-user.dto';
 import {ChangePasswordDto} from './dto/change-password.dto';
 import {UserRecord} from '../../database/schema';
+import {CharacterService} from "../character/character.service";
 
 const SALT_ROUNDS = 12;
 
 @Injectable()
 export class UserService {
-    constructor(private readonly repo: UserRepository) {
+    constructor(
+        private readonly repo: UserRepository,
+        @Inject(forwardRef(() => CharacterService))
+        private readonly characterService: CharacterService) {
     }
 
     toPublic(user: UserRecord) {
@@ -130,8 +141,11 @@ export class UserService {
     }
 
     async deleteAccount(id: string): Promise<void> {
-        await this.findById(id);
-        await this.repo.delete(id);
+        await Promise.all([
+            this.findById(id),
+            this.characterService.removeAllByUser(id),
+            this.repo.delete(id)
+        ])
     }
 
     async linkGoogleAccount(id: string, googleId: string, avatarUrl?: string): Promise<UserRecord> {
