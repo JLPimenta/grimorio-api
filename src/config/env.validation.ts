@@ -41,6 +41,9 @@ class EnvironmentVariables {
     @IsOptional()
     PORT: number = 3001;
 
+    @IsString()
+    RECAPTCHA_SECRET_KEY: string
+
 }
 
 export function validateEnv(config: Record<string, unknown>) {

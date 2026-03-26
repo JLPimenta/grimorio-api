@@ -17,14 +17,12 @@ export class AuthService {
         private readonly userService: UserService,
         private readonly jwtService: JwtService,
         private readonly mailService: MailService,
-        private readonly config: ConfigService,
+        private readonly config: ConfigService
     ) {
         this.googleClient = new OAuth2Client(
             config.get<string>('GOOGLE_CLIENT_ID'),
         );
     }
-
-    // ─── Utilitários ───────────────────────────────────────────────
 
     private generateToken(): string {
         return crypto.randomBytes(32).toString('hex');
@@ -44,9 +42,9 @@ export class AuthService {
         };
     }
 
-    // ─── Registro ──────────────────────────────────────────────────
-
     async register(dto: RegisterDto) {
+        await this.validateCaptcha(dto.captchaToken);
+
         const confirmToken = this.generateToken();
 
         const user = await this.userService.createWithPassword(
@@ -56,7 +54,6 @@ export class AuthService {
             confirmToken,
         );
 
-        // Envia email de confirmação em background — não bloqueia a resposta
         this.mailService
             .sendEmailConfirmation(user.email, user.name, confirmToken)
             .catch(() => null);
@@ -64,9 +61,9 @@ export class AuthService {
         return this.buildResponse(user);
     }
 
-    // ─── Login ─────────────────────────────────────────────────────
-
     async login(dto: LoginDto) {
+        await this.validateCaptcha(dto.captchaToken);
+
         const user = await this.userService.findByEmail(dto.email);
 
         if (!user) {
@@ -80,8 +77,6 @@ export class AuthService {
 
         return this.buildResponse(user);
     }
-
-    // ─── Google OAuth ──────────────────────────────────────────────
 
     async loginWithGoogle(credential: string) {
         const ticket = await this.googleClient
@@ -126,8 +121,6 @@ export class AuthService {
         return this.buildResponse(user);
     }
 
-    // ─── Recuperação de senha ──────────────────────────────────────
-
     async forgotPassword(email: string): Promise<void> {
         const token = this.generateToken();
         const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
@@ -138,7 +131,6 @@ export class AuthService {
             expiry,
         );
 
-        // Não revela se o email existe — sempre retorna sucesso
         if (!user) return;
 
         this.mailService
@@ -150,15 +142,22 @@ export class AuthService {
         await this.userService.resetPassword(token, newPassword);
     }
 
-    // ─── Confirmação de email ──────────────────────────────────────
-
     async confirmEmail(token: string): Promise<void> {
         await this.userService.confirmEmail(token);
     }
 
-    // ─── Me ────────────────────────────────────────────────────────
-
     getMe(user: UserRecord) {
         return this.userService.toPublic(user);
+    }
+
+    async validateCaptcha(captchaToken: string) {
+        const secret = this.config.get<string>('RECAPTCHA_SECRET_KEY');
+
+        const response = await fetch(
+            `https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${captchaToken}`,
+            {method: 'POST'}
+        );
+        const {success} = await response.json();
+        if (!success) throw new UnauthorizedException('Captcha inválido.');
     }
 }

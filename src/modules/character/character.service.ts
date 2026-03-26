@@ -10,7 +10,7 @@ export class CharacterService {
     constructor(private readonly repo: CharacterRepository) {
     }
 
-    findAll(userId: string): Promise<BasicCharacterRecord[]> {
+    async findAll(userId: string): Promise<BasicCharacterRecord[]> {
         return this.repo.findAll(userId);
     }
 
@@ -32,7 +32,7 @@ export class CharacterService {
         return character;
     }
 
-    create(dto: CreateCharacterDto, userId: string): Promise<CharacterRecord> {
+    async create(dto: CreateCharacterDto, userId: string): Promise<CharacterRecord> {
         const defaults = buildDefaultCharacter(dto.name);
         return this.repo.save({...defaults, userId: userId});
     }
@@ -56,7 +56,7 @@ export class CharacterService {
         return this.repo.delete(id);
     }
 
-    removeAllByUser(userId: string): Promise<void> {
+    async removeAllByUser(userId: string): Promise<void> {
         return this.repo.deleteAllByUser(userId);
     }
 }

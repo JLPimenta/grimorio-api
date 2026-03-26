@@ -4,6 +4,7 @@ import {CreateCharacterDto} from './dto/create-character.dto';
 import {UpdateCharacterDto} from './dto/update-character.dto';
 import {OptionalJwtGuard} from "../auth/guards/optional-jwt.guard";
 import {UserRecord} from "../../database/schema";
+import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 
 interface AuthRequest extends Request {
     user: UserRecord;
@@ -15,33 +16,39 @@ export class CharacterController {
     }
 
     @Get()
-    @UseGuards(OptionalJwtGuard)
-    findAll(@Req() req: AuthRequest) {
+    @UseGuards(JwtAuthGuard)
+    async findAll(@Req() req: AuthRequest) {
         return this.service.findAll(req.user.id);
     }
 
-    @Get(':id')
+    @Get(':id/shared')
     @UseGuards(OptionalJwtGuard)
-    findOne(@Param('id') id: string, @Req() req: AuthRequest ) {
-        return this.service.findById(id)
+    async getShared(@Param('id') id: string) {
+        return await this.service.findById(id)
+    }
+
+    @Get(':id')
+    @UseGuards(JwtAuthGuard)
+    async findOne(@Param('id') id: string, @Req() req: AuthRequest) {
+        return this.service.findById(id);
     }
 
     @Post()
-    @UseGuards(OptionalJwtGuard)
-    create(@Body() dto: CreateCharacterDto, @Req() req: AuthRequest) {
+    @UseGuards(JwtAuthGuard)
+    async create(@Body() dto: CreateCharacterDto, @Req() req: AuthRequest) {
         return this.service.create(dto, req.user.id);
     }
 
     @Put(':id')
-    @UseGuards(OptionalJwtGuard)
-    update(@Param('id') id: string, @Body() dto: UpdateCharacterDto, @Req() req: AuthRequest) {
+    @UseGuards(JwtAuthGuard)
+    async update(@Param('id') id: string, @Body() dto: UpdateCharacterDto, @Req() req: AuthRequest) {
         return this.service.update(id, dto, req.user.id);
     }
 
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    @UseGuards(OptionalJwtGuard)
-    remove(@Param('id') id: string, @Req() req: AuthRequest) {
+    @UseGuards(JwtAuthGuard)
+    async remove(@Param('id') id: string, @Req() req: AuthRequest) {
         return this.service.remove(id, req.user.id);
     }
 }
