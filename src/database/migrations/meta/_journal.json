@@ -8,6 +8,13 @@
       "when": 1774309523737,
       "tag": "0000_hard_loki",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774384224229,
+      "tag": "0001_known_hellfire_club",
+      "breakpoints": true
     }
   ]
 }

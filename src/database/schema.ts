@@ -59,3 +59,23 @@ export const characters = pgTable('characters', {
 export type CharacterRecord = typeof characters.$inferSelect;
 export type NewCharacterRecord = typeof characters.$inferInsert;
 export type BasicCharacterRecord = Pick<CharacterRecord, 'id' | 'name' | 'class' | 'subclass' | 'species' | 'level' | 'hitPoints' | 'createdAt' | 'updatedAt' | 'userId'>
+
+export const users = pgTable('users', {
+    id:            uuid('id').primaryKey().defaultRandom(),
+    name:          varchar('name', { length: 255 }).notNull(),
+    email:         varchar('email', { length: 255 }).notNull().unique(),
+    passwordHash:  varchar('password_hash', { length: 255 }), // nullable for Google
+    avatarUrl:     varchar('avatar_url', { length: 500 }),
+    googleId:      varchar('google_id', { length: 255 }).unique(),
+    emailVerified: boolean('email_verified').default(false).notNull(),
+
+    emailConfirmToken:   varchar('email_confirm_token', { length: 255 }),
+    passwordResetToken:  varchar('password_reset_token', { length: 255 }),
+    passwordResetExpiry: timestamp('password_reset_expiry'),
+
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export type UserRecord    = typeof users.$inferSelect;
+export type NewUserRecord = typeof users.$inferInsert;

@@ -5,26 +5,10 @@ import {BasicCharacterRecord, CharacterRecord, characters, NewCharacterRecord,} 
 
 @Injectable()
 export class CharacterRepository {
-    constructor(@Inject(DRIZZLE) private readonly db: DrizzleDB) {}
+    constructor(@Inject(DRIZZLE) private readonly db: DrizzleDB) {
+    }
 
-    findAll(userId?: string): Promise<BasicCharacterRecord[]> {
-        if (userId) {
-            return this.db
-                .select({
-                    id: characters.id,
-                    name: characters.name,
-                    class: characters.class,
-                    subclass: characters.subclass,
-                    species: characters.species,
-                    level: characters.level,
-                    hitPoints: characters.hitPoints,
-                    createdAt: characters.createdAt,
-                    updatedAt: characters.updatedAt,
-                    userId: characters.userId,
-                })
-                .from(characters)
-                .where(eq(characters.userId, userId));
-        }
+    findAll(userId: string): Promise<BasicCharacterRecord[]> {
         return this.db
             .select({
                 id: characters.id,
@@ -39,7 +23,8 @@ export class CharacterRepository {
                 userId: characters.userId,
             })
             .from(characters)
-            .orderBy(characters.updatedAt);
+            .where(eq(characters.userId, userId))
+            .orderBy(characters.updatedAt)
     }
 
     async findById(id: string): Promise<CharacterRecord | null> {
@@ -70,5 +55,11 @@ export class CharacterRepository {
         await this.db
             .delete(characters)
             .where(eq(characters.id, id));
+    }
+
+    async deleteAllByUser(userId: string): Promise<void> {
+        await this.db
+            .delete(characters)
+            .where(eq(characters.userId, userId));
     }
 }
