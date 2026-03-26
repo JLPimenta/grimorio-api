@@ -38,7 +38,7 @@ export class AuthController {
     @Post('google')
     @HttpCode(HttpStatus.OK)
     loginWithGoogle(@Body() dto: GoogleAuthDto) {
-        return this.authService.loginWithGoogle(dto.credential);
+        return this.authService.loginWithGoogle(dto.credential, dto.acceptTerms);
     }
 
     @Post('logout')

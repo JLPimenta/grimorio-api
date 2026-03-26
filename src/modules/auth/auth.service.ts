@@ -78,7 +78,7 @@ export class AuthService {
         return this.buildResponse(user);
     }
 
-    async loginWithGoogle(credential: string) {
+    async loginWithGoogle(credential: string, acceptTerms: boolean) {
         const ticket = await this.googleClient
             .verifyIdToken({
                 idToken: credential,
@@ -111,12 +111,11 @@ export class AuthService {
         }
 
         // 3. Cria conta nova via Google
-        user = await this.userService.createWithGoogle(
-            name ?? email,
-            email,
-            googleId,
-            picture,
-        );
+        if (!acceptTerms) {
+            throw new UnauthorizedException('Você deve aceitar os termos de uso para continuar.');
+        }
+
+        user = await this.userService.createWithGoogle(name ?? email, email, googleId, picture);
 
         return this.buildResponse(user);
     }
