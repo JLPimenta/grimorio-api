@@ -5,6 +5,7 @@ import { drizzle as drizzleNode } from 'drizzle-orm/node-postgres';
 import * as schema from './schema';
 import {Pool} from "pg";
 import {neon} from "@neondatabase/serverless";
+import {SafeDrizzleLogger} from "./logger";
 
 export const DRIZZLE = Symbol('DRIZZLE');
 export type DrizzleDB = ReturnType<typeof drizzleNode<typeof schema>>;
@@ -18,15 +19,15 @@ export type DrizzleDB = ReturnType<typeof drizzleNode<typeof schema>>;
             useFactory: (config: ConfigService) => {
                 const url = config.getOrThrow<string>('DATABASE_URL')
                 const isLocal = config.get<string>('NODE_ENV') !== 'production'
-
+                const logger = new SafeDrizzleLogger(!isLocal)
 
                 if (isLocal) {
                     const pool = new Pool({ connectionString: url })
-                    return drizzleNode(pool, { schema })
+                    return drizzleNode(pool, { schema, logger })
                 }
 
                 const sql = neon(url)
-                return drizzleNeon(sql, { schema })
+                return drizzleNeon(sql, { schema, logger })
             },
         },
     ],

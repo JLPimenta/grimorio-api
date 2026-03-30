@@ -1,4 +1,4 @@
-import {boolean, integer, jsonb, pgTable, timestamp, uuid, varchar,} from 'drizzle-orm/pg-core';
+import {boolean, integer, jsonb, pgTable, text, timestamp, uuid, varchar,} from 'drizzle-orm/pg-core';
 
 export const characters = pgTable('characters', {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -31,15 +31,15 @@ export const characters = pgTable('characters', {
     coins: jsonb('coins').notNull(),
 
     classFeatures: jsonb('class_features').notNull().default([]),
-    speciesTraits: varchar('species_traits', {length: 2000}).default(''),
-    feats: varchar('feats', {length: 2000}).default(''),
+    speciesTraits: text('species_traits').default(''),
+    feats: text('feats').default(''),
     armorTraining: varchar('armor_training', {length: 255}).default(''),
     weaponTraining: varchar('weapon_training', {length: 255}).default(''),
     toolTraining: varchar('tool_training', {length: 255}).default(''),
 
-    personalityAndHistory: varchar('personality_and_history', {length: 5000}).default(''),
+    personalityAndHistory: text('personality_and_history').default(''),
     alignment: varchar('alignment', {length: 100}).default(''),
-    languages: varchar('languages', {length: 500}).default(''),
+    languages: text('languages').default(''),
 
     campaignNotes: jsonb('campaign_notes').notNull().default([]),
     customFields: jsonb('custom_fields').notNull().default([]),

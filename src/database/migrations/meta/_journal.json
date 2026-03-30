@@ -15,6 +15,20 @@
       "when": 1774384224229,
       "tag": "0001_known_hellfire_club",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774905243890,
+      "tag": "0002_stale_lilandra",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1774906241523,
+      "tag": "0003_graceful_alex_power",
+      "breakpoints": true
     }
   ]
 }
