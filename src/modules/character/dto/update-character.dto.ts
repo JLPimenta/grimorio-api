@@ -1,15 +1,17 @@
 import {
     IsString, IsInt, IsOptional, IsObject,
-    IsArray, IsBoolean, Min, Max,
+    IsArray, IsBoolean, Min, Max, MaxLength,
 } from 'class-validator';
 
 export class UpdateCharacterDto {
     @IsString()
     @IsOptional()
+    @MaxLength(255)
     name?: string;
 
     @IsString()
     @IsOptional()
+    @MaxLength(100)
     class?: string;
 
     @IsInt()
@@ -79,15 +81,15 @@ export class UpdateCharacterDto {
     @IsObject() @IsOptional() coins?: Record<string, number>;
 
     @IsArray()  @IsOptional() classFeatures?: string[];
-    @IsString() @IsOptional() speciesTraits?: string;
-    @IsString() @IsOptional() feats?: string;
+    @IsString() @IsOptional() @MaxLength(5_000) speciesTraits?: string;
+    @IsString() @IsOptional() @MaxLength(5_000) feats?: string;
     @IsString() @IsOptional() armorTraining?: string;
     @IsString() @IsOptional() weaponTraining?: string;
     @IsString() @IsOptional() toolTraining?: string;
 
-    @IsString() @IsOptional() personalityAndHistory?: string;
+    @IsString() @IsOptional() @MaxLength(10_000) personalityAndHistory?: string;
     @IsString() @IsOptional() alignment?: string;
-    @IsString() @IsOptional() languages?: string;
+    @IsString() @IsOptional() @MaxLength(500) languages?: string;
 
     @IsArray()  @IsOptional() campaignNotes?: any[];
     @IsArray()  @IsOptional() customFields?: any[];
