@@ -17,13 +17,6 @@
       "breakpoints": true
     },
     {
-      "idx": 2,
-      "version": "7",
-      "when": 1774905243890,
-      "tag": "0002_stale_lilandra",
-      "breakpoints": true
-    },
-    {
       "idx": 3,
       "version": "7",
       "when": 1774906241523,
