@@ -1,4 +1,5 @@
-import {Body, Controller, Delete, Get, HttpCode, HttpStatus, Post, Put, Req, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, HttpCode, HttpStatus, Post, Put, Patch, Req, UseGuards} from '@nestjs/common';
+import {Throttle, ThrottlerGuard} from '@nestjs/throttler';
 import {AuthService} from './auth.service';
 import {UserService} from '../user/user.service';
 import {JwtAuthGuard} from './guards/jwt-auth.guard';
@@ -8,8 +9,10 @@ import {GoogleAuthDto} from './dto/google-auth.dto';
 import {ForgotPasswordDto} from './dto/forgot-password.dto';
 import {ResetPasswordDto} from './dto/reset-password.dto';
 import {ConfirmEmailDto} from './dto/confirm-email.dto';
+import {ResendConfirmationDto} from './dto/resend-confirmation.dto';
 import {UpdateUserDto} from '../user/dto/update-user.dto';
 import {ChangePasswordDto} from '../user/dto/change-password.dto';
+import {UpdatePreferencesDto} from './dto/update-preferences.dto';
 import {UserRecord} from '../../database/schema';
 
 interface AuthRequest extends Request {
@@ -17,6 +20,7 @@ interface AuthRequest extends Request {
 }
 
 @Controller('auth')
+@UseGuards(ThrottlerGuard)
 export class AuthController {
     constructor(
         private readonly authService: AuthService,
@@ -25,20 +29,23 @@ export class AuthController {
     }
 
     @Post('register')
+    @Throttle({ default: { limit: 5, ttl: 60000 } })
     register(@Body() dto: RegisterDto) {
         return this.authService.register(dto);
     }
 
     @Post('login')
     @HttpCode(HttpStatus.OK)
+    @Throttle({ default: { limit: 5, ttl: 60000 } })
     login(@Body() dto: LoginDto) {
         return this.authService.login(dto);
     }
 
     @Post('google')
     @HttpCode(HttpStatus.OK)
+    @Throttle({ default: { limit: 5, ttl: 60000 } })
     loginWithGoogle(@Body() dto: GoogleAuthDto) {
-        return this.authService.loginWithGoogle(dto.credential, dto.acceptTerms);
+        return this.authService.loginWithGoogle(dto.credential, dto.acceptTerms, dto.nonce);
     }
 
     @Post('logout')
@@ -54,6 +61,17 @@ export class AuthController {
         return this.authService.getMe(req.user);
     }
 
+    @Patch('preferences')
+    @UseGuards(JwtAuthGuard)
+    updatePreferences(
+        @Req() req: AuthRequest,
+        @Body() dto: UpdatePreferencesDto,
+    ) {
+        return this.userService
+            .updatePreferences(req.user.id, dto)
+            .then(user => this.userService.toPublic(user));
+    }
+
     @Post('confirm-email')
     @HttpCode(HttpStatus.OK)
     confirmEmail(@Body() dto: ConfirmEmailDto) {
@@ -62,14 +80,23 @@ export class AuthController {
 
     @Post('forgot-password')
     @HttpCode(HttpStatus.OK)
+    @Throttle({ default: { limit: 3, ttl: 60000 } })
     forgotPassword(@Body() dto: ForgotPasswordDto) {
         return this.authService.forgotPassword(dto.email);
     }
 
     @Post('reset-password')
     @HttpCode(HttpStatus.OK)
+    @Throttle({ default: { limit: 3, ttl: 60000 } })
     resetPassword(@Body() dto: ResetPasswordDto) {
         return this.authService.resetPassword(dto.token, dto.newPassword);
+    }
+
+    @Post('resend-confirmation')
+    @HttpCode(HttpStatus.OK)
+    @Throttle({ default: { limit: 1, ttl: 60000 } })
+    resendConfirmation(@Body() dto: ResendConfirmationDto) {
+        return this.authService.resendConfirmationEmail(dto.email);
     }
 
     @Put('profile')

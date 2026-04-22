@@ -22,6 +22,13 @@
       "when": 1774906241523,
       "tag": "0003_graceful_alex_power",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1776806167494,
+      "tag": "0004_fair_fallen_one",
+      "breakpoints": true
     }
   ]
 }

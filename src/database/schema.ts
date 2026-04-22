@@ -59,6 +59,7 @@ export const characters = pgTable('characters', {
 export type CharacterRecord = typeof characters.$inferSelect;
 export type NewCharacterRecord = typeof characters.$inferInsert;
 export type BasicCharacterRecord = Pick<CharacterRecord, 'id' | 'name' | 'class' | 'subclass' | 'species' | 'level' | 'hitPoints' | 'createdAt' | 'updatedAt' | 'userId'>
+export type SharedCharacterRecord = Pick<CharacterRecord, 'id' | 'name' | 'class' | 'level' | 'species' | 'background' | 'subclass' | 'abilities' | 'skills' | 'armorClass' | 'hitPoints' | 'speed' | 'weapons' | 'spells' | 'classFeatures' | 'speciesTraits' | 'feats' | 'hitDice' | 'deathSaves' | 'spellSlots' | 'spellcastingAbility' | 'bonuses' | 'personalityAndHistory' | 'alignment' | 'languages'>
 
 export const users = pgTable('users', {
     id:            uuid('id').primaryKey().defaultRandom(),
@@ -68,6 +69,7 @@ export const users = pgTable('users', {
     avatarUrl:     varchar('avatar_url', { length: 500 }),
     googleId:      varchar('google_id', { length: 255 }).unique(),
     emailVerified: boolean('email_verified').default(false).notNull(),
+    preferences:    jsonb('preferences').notNull().default({}),
 
     emailConfirmToken:   varchar('email_confirm_token', { length: 255 }),
     passwordResetToken:  varchar('password_reset_token', { length: 255 }),

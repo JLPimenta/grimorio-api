@@ -78,7 +78,7 @@ export class AuthService {
         return this.buildResponse(user);
     }
 
-    async loginWithGoogle(credential: string, acceptTerms: boolean) {
+    async loginWithGoogle(credential: string, acceptTerms: boolean, nonce?: string) {
         const ticket = await this.googleClient
             .verifyIdToken({
                 idToken: credential,
@@ -94,6 +94,12 @@ export class AuthService {
         }
 
         const {sub: googleId, email, name, picture} = payload;
+
+        if (!nonce) throw new UnauthorizedException('Nonce é obrigatório.');
+        
+        if (nonce && payload.nonce && payload.nonce !== nonce) {
+            throw new UnauthorizedException('Token Google inválido (nonce mismatch)');
+        }
 
         // 1. Já tem conta Google vinculada?
         let user = await this.userService.findByGoogleId(googleId);
@@ -143,6 +149,26 @@ export class AuthService {
 
     async confirmEmail(token: string): Promise<void> {
         await this.userService.confirmEmail(token);
+    }
+
+    async resendConfirmationEmail(email: string): Promise<void> {
+        const user = await this.userService.findByEmail(email);
+        if (!user) {
+            // Silently return to prevent email enumeration
+            return;
+        }
+
+        if (user.emailVerified) {
+            // Se já foi verificado, não faz sentido reenviar. Silently return.
+            return;
+        }
+
+        const confirmToken = this.generateToken();
+        await this.userService.updateEmailConfirmToken(user.id, confirmToken);
+
+        this.mailService
+            .sendEmailConfirmation(user.email, user.name, confirmToken)
+            .catch(() => null);
     }
 
     getMe(user: UserRecord) {
