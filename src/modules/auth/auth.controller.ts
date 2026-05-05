@@ -52,7 +52,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @Throttle({ default: { limit: 5, ttl: 60000 } })
     async loginWithGoogle(@Body() dto: GoogleAuthDto, @Res({passthrough: true}) res: Response) {
-        const result = await this.authService.loginWithGoogle(dto.credential, dto.acceptTerms. dto.nonce);
+        const result = await this.authService.loginWithGoogle(dto.credential, dto.acceptTerms, dto.nonce);
         this.authCookieService.setAuthCookies(res, result.token);
         return {user: result.user};
     }
