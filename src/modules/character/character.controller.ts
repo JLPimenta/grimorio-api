@@ -3,7 +3,7 @@ import {CharacterService} from './character.service';
 import {CreateCharacterDto} from './dto/create-character.dto';
 import {UpdateCharacterDto} from './dto/update-character.dto';
 import {OptionalJwtGuard} from "../auth/guards/optional-jwt.guard";
-import {UserRecord} from "../../database/schema";
+import {SharedCharacterRecord, UserRecord} from "../../database/schema";
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 
 interface AuthRequest extends Request {
