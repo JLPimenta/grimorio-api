@@ -44,6 +44,10 @@ class EnvironmentVariables {
     @IsString()
     RECAPTCHA_SECRET_KEY: string
 
+    @IsString()
+    @IsOptional()
+    COOKIE_DOMAIN: string;
+
 }
 
 export function validateEnv(config: Record<string, unknown>) {

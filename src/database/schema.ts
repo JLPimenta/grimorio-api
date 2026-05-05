@@ -52,13 +52,14 @@ export const characters = pgTable('characters', {
     }),
 
     userId: uuid('user_id'),           // nullable — fase 2
+    isShared: boolean('is_shared').default(false).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 export type CharacterRecord = typeof characters.$inferSelect;
 export type NewCharacterRecord = typeof characters.$inferInsert;
-export type BasicCharacterRecord = Pick<CharacterRecord, 'id' | 'name' | 'class' | 'subclass' | 'species' | 'level' | 'hitPoints' | 'createdAt' | 'updatedAt' | 'userId'>
+export type BasicCharacterRecord = Pick<CharacterRecord, 'id' | 'name' | 'class' | 'subclass' | 'species' | 'level' | 'hitPoints' | 'createdAt' | 'updatedAt' | 'userId' | 'isShared'>
 export type SharedCharacterRecord = Pick<CharacterRecord, 'id' | 'name' | 'class' | 'level' | 'species' | 'background' | 'subclass' | 'abilities' | 'skills' | 'armorClass' | 'hitPoints' | 'speed' | 'weapons' | 'spells' | 'classFeatures' | 'speciesTraits' | 'feats' | 'hitDice' | 'deathSaves' | 'spellSlots' | 'spellcastingAbility' | 'bonuses' | 'personalityAndHistory' | 'alignment' | 'languages'>
 
 export const users = pgTable('users', {

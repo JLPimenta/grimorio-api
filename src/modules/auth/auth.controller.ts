@@ -1,4 +1,6 @@
-import {Body, Controller, Delete, Get, HttpCode, HttpStatus, Post, Put, Patch, Req, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, HttpCode, HttpStatus, Post, Put, Patch, Req, Res, UseGuards} from '@nestjs/common';
+import type {Response, Request} from 'express';
+import {AuthCookieService} from './auth-cookie.service';
 import {Throttle, ThrottlerGuard} from '@nestjs/throttler';
 import {AuthService} from './auth.service';
 import {UserService} from '../user/user.service';
@@ -25,33 +27,40 @@ export class AuthController {
     constructor(
         private readonly authService: AuthService,
         private readonly userService: UserService,
+        private readonly authCookieService: AuthCookieService,
     ) {
     }
 
     @Post('register')
     @Throttle({ default: { limit: 5, ttl: 60000 } })
-    register(@Body() dto: RegisterDto) {
-        return this.authService.register(dto);
+    async register(@Body() dto: RegisterDto, @Res({passthrough: true}) res: Response) {
+        const result = await this.authService.register(dto);
+        this.authCookieService.setAuthCookies(res, result.token);
+        return {user: result.user};
     }
 
     @Post('login')
     @HttpCode(HttpStatus.OK)
     @Throttle({ default: { limit: 5, ttl: 60000 } })
-    login(@Body() dto: LoginDto) {
-        return this.authService.login(dto);
+    async login(@Body() dto: LoginDto, @Res({passthrough: true}) res: Response) {
+        const result = await this.authService.login(dto);
+        this.authCookieService.setAuthCookies(res, result.token);
+        return {user: result.user};
     }
 
     @Post('google')
     @HttpCode(HttpStatus.OK)
     @Throttle({ default: { limit: 5, ttl: 60000 } })
-    loginWithGoogle(@Body() dto: GoogleAuthDto) {
-        return this.authService.loginWithGoogle(dto.credential, dto.acceptTerms, dto.nonce);
+    async loginWithGoogle(@Body() dto: GoogleAuthDto, @Res({passthrough: true}) res: Response) {
+        const result = await this.authService.loginWithGoogle(dto.credential, dto.acceptTerms, dto.nonce);
+        this.authCookieService.setAuthCookies(res, result.token);
+        return {user: result.user};
     }
 
     @Post('logout')
     @HttpCode(HttpStatus.NO_CONTENT)
-    logout() {
-        // TODO: blacklist de tokens com Redis
+    logout(@Res({passthrough: true}) res: Response) {
+        this.authCookieService.clearAuthCookies(res);
         return;
     }
 

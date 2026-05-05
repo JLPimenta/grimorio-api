@@ -23,35 +23,8 @@ export class CharacterController {
 
     @Get(':id/shared')
     @UseGuards(OptionalJwtGuard)
-    async getShared(@Param('id') id: string): Promise<SharedCharacterRecord> {
-        const full = await this.service.findById(id);
-        return {
-            id: full.id,
-            name: full.name,
-            class: full.class,
-            level: full.level,
-            species: full.species,
-            background: full.background,
-            subclass: full.subclass,
-            abilities: full.abilities,
-            skills: full.skills,
-            armorClass: full.armorClass,
-            hitPoints: full.hitPoints,
-            speed: full.speed,
-            weapons: full.weapons,
-            spells: full.spells,
-            classFeatures: full.classFeatures,
-            speciesTraits: full.speciesTraits,
-            personalityAndHistory: full.personalityAndHistory,
-            alignment: full.alignment,
-            languages: full.languages,
-            feats: full.feats,
-            hitDice: full.hitDice,
-            deathSaves: full.deathSaves,
-            spellSlots: full.spellSlots,
-            spellcastingAbility: full.spellcastingAbility,
-            bonuses: full.bonuses
-        }
+    async getShared(@Param('id') id: string) {
+        return await this.service.findShared(id)
     }
 
     @Get(':id')

@@ -1,7 +1,9 @@
 import {NestFactory} from '@nestjs/core';
 import {NestExpressApplication} from '@nestjs/platform-express';
 import {ValidationPipe} from '@nestjs/common';
+import cookieParser from 'cookie-parser';
 import {AppModule} from './app.module';
+import {CsrfGuard} from "./modules/auth/guards/csrf.guard";
 import {AllExceptionsFilter} from "./shared/filters/http-exception.filter";
 
 async function bootstrap() {
@@ -10,6 +12,7 @@ async function bootstrap() {
     app.set('trust proxy', 1);
 
     app.setGlobalPrefix('api');
+    app.use(cookieParser());
 
     const frontendUrl = process.env.FRONTEND_URL;
     if (!frontendUrl) {
@@ -17,10 +20,13 @@ async function bootstrap() {
     }
 
     app.enableCors({
-        origin: frontendUrl,
+        origin: process.env.FRONTEND_URL,
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token', 'x-xsrf-token'],
+        credentials: true,
     });
+
+    app.useGlobalGuards(new CsrfGuard());
 
     app.useGlobalPipes(
         new ValidationPipe({
