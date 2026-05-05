@@ -1,5 +1,5 @@
 {
-  "id": "1fe176bd-cb6e-4ed5-a02d-8e757c9056b5",
+  "id": "7c1dec8b-2a50-4002-b88f-fe9e5948c477",
   "prevId": "ed98d6d3-3d50-4780-9d1f-7cbba6c6fa73",
   "version": "7",
   "dialect": "postgresql",
@@ -258,13 +258,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "is_shared": {
-          "name": "is_shared",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -335,6 +328,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": false
+        },
+        "preferences": {
+          "name": "preferences",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
         },
         "email_confirm_token": {
           "name": "email_confirm_token",

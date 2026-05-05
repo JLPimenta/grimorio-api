@@ -1,6 +1,7 @@
-import {Body, Controller, Delete, Get, HttpCode, HttpStatus, Post, Put, Req, Res, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, HttpCode, HttpStatus, Post, Put, Patch, Req, Res, UseGuards} from '@nestjs/common';
 import type {Response, Request} from 'express';
 import {AuthCookieService} from './auth-cookie.service';
+import {Throttle, ThrottlerGuard} from '@nestjs/throttler';
 import {AuthService} from './auth.service';
 import {UserService} from '../user/user.service';
 import {JwtAuthGuard} from './guards/jwt-auth.guard';
@@ -10,8 +11,10 @@ import {GoogleAuthDto} from './dto/google-auth.dto';
 import {ForgotPasswordDto} from './dto/forgot-password.dto';
 import {ResetPasswordDto} from './dto/reset-password.dto';
 import {ConfirmEmailDto} from './dto/confirm-email.dto';
+import {ResendConfirmationDto} from './dto/resend-confirmation.dto';
 import {UpdateUserDto} from '../user/dto/update-user.dto';
 import {ChangePasswordDto} from '../user/dto/change-password.dto';
+import {UpdatePreferencesDto} from './dto/update-preferences.dto';
 import {UserRecord} from '../../database/schema';
 
 interface AuthRequest extends Request {
@@ -19,6 +22,7 @@ interface AuthRequest extends Request {
 }
 
 @Controller('auth')
+@UseGuards(ThrottlerGuard)
 export class AuthController {
     constructor(
         private readonly authService: AuthService,
@@ -28,6 +32,7 @@ export class AuthController {
     }
 
     @Post('register')
+    @Throttle({ default: { limit: 5, ttl: 60000 } })
     async register(@Body() dto: RegisterDto, @Res({passthrough: true}) res: Response) {
         const result = await this.authService.register(dto);
         this.authCookieService.setAuthCookies(res, result.token);
@@ -36,6 +41,7 @@ export class AuthController {
 
     @Post('login')
     @HttpCode(HttpStatus.OK)
+    @Throttle({ default: { limit: 5, ttl: 60000 } })
     async login(@Body() dto: LoginDto, @Res({passthrough: true}) res: Response) {
         const result = await this.authService.login(dto);
         this.authCookieService.setAuthCookies(res, result.token);
@@ -44,8 +50,9 @@ export class AuthController {
 
     @Post('google')
     @HttpCode(HttpStatus.OK)
+    @Throttle({ default: { limit: 5, ttl: 60000 } })
     async loginWithGoogle(@Body() dto: GoogleAuthDto, @Res({passthrough: true}) res: Response) {
-        const result = await this.authService.loginWithGoogle(dto.credential, dto.acceptTerms);
+        const result = await this.authService.loginWithGoogle(dto.credential, dto.acceptTerms. dto.nonce);
         this.authCookieService.setAuthCookies(res, result.token);
         return {user: result.user};
     }
@@ -63,6 +70,17 @@ export class AuthController {
         return this.authService.getMe(req.user);
     }
 
+    @Patch('preferences')
+    @UseGuards(JwtAuthGuard)
+    updatePreferences(
+        @Req() req: AuthRequest,
+        @Body() dto: UpdatePreferencesDto,
+    ) {
+        return this.userService
+            .updatePreferences(req.user.id, dto)
+            .then(user => this.userService.toPublic(user));
+    }
+
     @Post('confirm-email')
     @HttpCode(HttpStatus.OK)
     confirmEmail(@Body() dto: ConfirmEmailDto) {
@@ -71,14 +89,23 @@ export class AuthController {
 
     @Post('forgot-password')
     @HttpCode(HttpStatus.OK)
+    @Throttle({ default: { limit: 3, ttl: 60000 } })
     forgotPassword(@Body() dto: ForgotPasswordDto) {
         return this.authService.forgotPassword(dto.email);
     }
 
     @Post('reset-password')
     @HttpCode(HttpStatus.OK)
+    @Throttle({ default: { limit: 3, ttl: 60000 } })
     resetPassword(@Body() dto: ResetPasswordDto) {
         return this.authService.resetPassword(dto.token, dto.newPassword);
+    }
+
+    @Post('resend-confirmation')
+    @HttpCode(HttpStatus.OK)
+    @Throttle({ default: { limit: 1, ttl: 60000 } })
+    resendConfirmation(@Body() dto: ResendConfirmationDto) {
+        return this.authService.resendConfirmationEmail(dto.email);
     }
 
     @Put('profile')

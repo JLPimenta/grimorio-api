@@ -1,5 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import {validateEnv} from "./config/env.validation";
 import {DatabaseModule} from "./database/database.module";
@@ -15,6 +16,10 @@ import {CsrfMiddleware} from './shared/middlewares/csrf.middleware';
             isGlobal: true,
             validate: validateEnv,
         }),
+        ThrottlerModule.forRoot([{ 
+            ttl: 60000, 
+            limit: 100 
+        }]),
         DatabaseModule,
         CharacterModule,
         UserModule,

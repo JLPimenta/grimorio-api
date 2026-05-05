@@ -1,4 +1,4 @@
-import {IsBoolean, IsString} from 'class-validator';
+import {IsBoolean, IsOptional, IsString} from 'class-validator';
 
 export class GoogleAuthDto {
     @IsString()
@@ -6,4 +6,8 @@ export class GoogleAuthDto {
 
     @IsBoolean()
     acceptTerms: boolean;
+
+    @IsString()
+    @IsOptional()
+    nonce?: string;
 }

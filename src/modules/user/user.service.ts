@@ -30,6 +30,7 @@ export class UserService {
             email: user.email,
             avatarUrl: user.avatarUrl,
             emailVerified: user.emailVerified,
+            preferences: user.preferences,
             createdAt: user.createdAt,
         };
     }
@@ -98,6 +99,23 @@ export class UserService {
         await this.repo.update(id, {passwordHash});
     }
 
+    async updatePreferences(id: string, dto: any): Promise<UserRecord> {
+        const user = await this.findById(id);
+
+        const currentPreferences = typeof user.preferences === 'object' && user.preferences !== null
+            ? user.preferences
+            : {};
+
+        const updatedPreferences = { ...currentPreferences };
+        for (const [key, value] of Object.entries(dto)) {
+            if (value !== undefined) {
+                updatedPreferences[key] = value;
+            }
+        }
+
+        return this.repo.update(id, { preferences: updatedPreferences });
+    }
+
     async confirmEmail(token: string): Promise<void> {
         const user = await this.repo.findByEmailConfirmToken(token);
         if (!user) throw new NotFoundException('Token inválido ou expirado');
@@ -105,6 +123,12 @@ export class UserService {
         await this.repo.update(user.id, {
             emailVerified: true,
             emailConfirmToken: null,
+        });
+    }
+
+    async updateEmailConfirmToken(id: string, token: string): Promise<void> {
+        await this.repo.update(id, {
+            emailConfirmToken: token,
         });
     }
 
