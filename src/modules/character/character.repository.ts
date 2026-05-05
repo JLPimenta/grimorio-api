@@ -21,6 +21,7 @@ export class CharacterRepository {
                 createdAt: characters.createdAt,
                 updatedAt: characters.updatedAt,
                 userId: characters.userId,
+                isShared: characters.isShared,
             })
             .from(characters)
             .where(eq(characters.userId, userId))

@@ -22,6 +22,17 @@ export class CharacterService {
         return character;
     }
 
+    async findShared(id: string): Promise<CharacterRecord> {
+        const character = await this.repo.findById(id);
+
+        // Mensagem genérica intencional: não revela se o UUID existe mas está bloqueado
+        if (!character || !character.isShared) {
+            throw new NotFoundException('Ficha não encontrada ou não está compartilhada.');
+        }
+
+        return character;
+    }
+
     async assertOwnership(id: string, userId: string): Promise<CharacterRecord> {
         const character = await this.findById(id);
 

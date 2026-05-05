@@ -100,4 +100,6 @@ export class UpdateCharacterDto {
         savingThrows?:     Record<string, number>;
         skills?:           Record<string, number>;
     };
+
+    @IsBoolean() @IsOptional() isShared?: boolean;
 }

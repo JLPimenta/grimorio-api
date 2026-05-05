@@ -24,13 +24,13 @@ export class CharacterController {
     @Get(':id/shared')
     @UseGuards(OptionalJwtGuard)
     async getShared(@Param('id') id: string) {
-        return await this.service.findById(id)
+        return await this.service.findShared(id)
     }
 
     @Get(':id')
     @UseGuards(JwtAuthGuard)
     async findOne(@Param('id') id: string, @Req() req: AuthRequest) {
-        return this.service.findById(id);
+        return this.service.assertOwnership(id, req.user.id);
     }
 
     @Post()
