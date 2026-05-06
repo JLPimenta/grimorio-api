@@ -6,7 +6,7 @@
   "private": true,
   "license": "GNU GENERAL PUBLIC LICENSE",
   "scripts": {
-    "build": "nest build",
+    "build": "tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "node dist/src/main",
     "start:dev": "nest start --watch",
@@ -37,16 +37,19 @@
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
+    "google-auth-library": "^10.6.2",
+    "nodemailer": "^8.0.4",
     "passport-jwt": "^4.0.1",
     "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "@nestjs/jwt": "^11.0.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
     "@nestjs/cli": "^11.0.0",
-    "@nestjs/jwt": "^11.0.2",
+
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
     "@types/bcrypt": "^6.0.0",
@@ -63,9 +66,9 @@
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^16.0.0",
-    "google-auth-library": "^10.6.2",
+
     "jest": "^30.0.0",
-    "nodemailer": "^8.0.4",
+
     "prettier": "^3.4.2",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",
