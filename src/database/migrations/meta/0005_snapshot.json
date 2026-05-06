@@ -1,6 +1,6 @@
 {
-  "id": "7c1dec8b-2a50-4002-b88f-fe9e5948c477",
-  "prevId": "ed98d6d3-3d50-4780-9d1f-7cbba6c6fa73",
+  "id": "3c9e41c0-6653-4ebb-9f53-07565ba8f399",
+  "prevId": "7c1dec8b-2a50-4002-b88f-fe9e5948c477",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -257,6 +257,13 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
+        },
+        "is_shared": {
+          "name": "is_shared",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "created_at": {
           "name": "created_at",
