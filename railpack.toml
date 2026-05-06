@@ -1,5 +1,8 @@
 [build]
 cmd = "npm run build"
 
+[preStart]
+cmd = "npm run db:migrate"
+
 [start]
-cmd = "npm run db:migrate && node dist/src/main"
+cmd = "node dist/src/main"
