@@ -1,5 +1,7 @@
 [build]
 builder = "nixpacks"
+installCommand = "npm ci"
+buildCommand = "npm run build"
 
 [deploy]
 startCommand = "npm run db:migrate && node dist/src/main"
