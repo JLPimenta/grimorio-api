@@ -1,5 +1,5 @@
 import {Inject, Injectable} from '@nestjs/common';
-import {eq} from 'drizzle-orm';
+import {asc, eq} from 'drizzle-orm';
 import {DRIZZLE, type DrizzleDB} from '../../database/database.module';
 import {BasicCharacterRecord, CharacterRecord, characters, NewCharacterRecord,} from '../../database/schema';
 
@@ -8,16 +8,15 @@ export class CharacterRepository {
     constructor(@Inject(DRIZZLE) private readonly db: DrizzleDB) {
     }
 
+    /** Listagem do dashboard: só o envelope, nunca o blob `data`. */
     findAll(userId: string): Promise<BasicCharacterRecord[]> {
         return this.db
             .select({
                 id: characters.id,
+                system: characters.system,
                 name: characters.name,
-                class: characters.class,
-                subclass: characters.subclass,
-                species: characters.species,
                 level: characters.level,
-                hitPoints: characters.hitPoints,
+                card: characters.card,
                 createdAt: characters.createdAt,
                 updatedAt: characters.updatedAt,
                 userId: characters.userId,
@@ -25,7 +24,7 @@ export class CharacterRepository {
             })
             .from(characters)
             .where(eq(characters.userId, userId))
-            .orderBy(characters.updatedAt)
+            .orderBy(asc(characters.updatedAt));
     }
 
     async findById(id: string): Promise<CharacterRecord | null> {
@@ -37,17 +36,19 @@ export class CharacterRepository {
         return record ?? null;
     }
 
-    async save(data: NewCharacterRecord): Promise<CharacterRecord> {
+    async insert(data: NewCharacterRecord): Promise<CharacterRecord> {
         const [record] = await this.db
             .insert(characters)
             .values(data)
-            .onConflictDoUpdate({
-                target: characters.id,
-                set: {
-                    ...data,
-                    updatedAt: new Date(),
-                },
-            })
+            .returning();
+        return record;
+    }
+
+    async update(id: string, patch: Omit<Partial<NewCharacterRecord>, 'id' | 'system' | 'userId' | 'createdAt'>): Promise<CharacterRecord> {
+        const [record] = await this.db
+            .update(characters)
+            .set({...patch, updatedAt: new Date()})
+            .where(eq(characters.id, id))
             .returning();
         return record;
     }

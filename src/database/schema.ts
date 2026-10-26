@@ -1,66 +1,77 @@
-import {boolean, integer, jsonb, pgTable, text, timestamp, uuid, varchar,} from 'drizzle-orm/pg-core';
+import {boolean, index, integer, jsonb, pgTable, text, timestamp, uuid, varchar,} from 'drizzle-orm/pg-core';
 
 export const characters = pgTable('characters', {
     id: uuid('id').primaryKey().defaultRandom(),
+
+    // ---- Envelope (agnóstico de sistema) ----------------------------------
+    /** Sistema de jogo da ficha. Imutável depois de criada. */
+    system: varchar('system', {length: 50}).notNull().default('dnd5_5e'),
+    /** Versão do formato de `data` para este sistema (migração lazy). */
+    schemaVersion: integer('schema_version').notNull().default(1),
     name: varchar('name', {length: 255}).notNull(),
-    class: varchar('class', {length: 100}).default(''),
     level: integer('level').notNull().default(1),
+    /** Resumo do card do dashboard, derivado no servidor a cada save. */
+    card: jsonb('card').notNull().default({details: [], stats: []}),
+
+    // ---- Conteúdo da ficha (formato definido pelo sistema) -----------------
+    data: jsonb('data').notNull(),
+
+    // ---- Metadados ---------------------------------------------------------
+    userId: uuid('user_id'),           // nullable — fase 2
+    isShared: boolean('is_shared').default(false).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+
+    // ---- LEGADO (D&D 5.5e) -------------------------------------------------
+    // @deprecated Substituídas por `data`. Mantidas (agora anuláveis) apenas
+    // para permitir rollback da API durante a transição; o backend ainda as
+    // espelha em character.legacy-mirror.ts. Remover na migration de limpeza:
+    // apagar este bloco + o espelho e rodar `npm run db:generate`.
+    class: varchar('class', {length: 100}).default(''),
     species: varchar('species', {length: 100}).default(''),
     subclass: varchar('subclass', {length: 100}).default(''),
     background: varchar('background', {length: 100}).default(''),
-    xp: integer('xp').notNull().default(0),
-
-    abilities: jsonb('abilities').notNull(),
-    skills: jsonb('skills').notNull(),
-
-    armorClass: integer('armor_class').notNull().default(10),
-    hitPoints: jsonb('hit_points').notNull(),
-    hitDice: jsonb('hit_dice').notNull(),
-    deathSaves: jsonb('death_saves').notNull(),
-    speed: integer('speed').notNull().default(30),
+    xp: integer('xp').default(0),
+    abilities: jsonb('abilities'),
+    skills: jsonb('skills'),
+    armorClass: integer('armor_class').default(10),
+    hitPoints: jsonb('hit_points'),
+    hitDice: jsonb('hit_dice'),
+    deathSaves: jsonb('death_saves'),
+    speed: integer('speed').default(30),
     size: varchar('size', {length: 50}).default('Médio'),
     heroicInspiration: boolean('heroic_inspiration').default(false),
-
-    weapons: jsonb('weapons').notNull().default([]),
-    spells: jsonb('spells').notNull().default([]),
-    spellSlots: jsonb('spell_slots').notNull(),
+    weapons: jsonb('weapons').default([]),
+    spells: jsonb('spells').default([]),
+    spellSlots: jsonb('spell_slots'),
     spellcastingAbility: varchar('spellcasting_ability', {length: 50}).default(''),
-
-    inventory: jsonb('inventory').notNull().default([]),
-    attunedItems: jsonb('attuned_items').notNull().default([]),
-    coins: jsonb('coins').notNull(),
-
-    classFeatures: jsonb('class_features').notNull().default([]),
+    inventory: jsonb('inventory').default([]),
+    attunedItems: jsonb('attuned_items').default([]),
+    coins: jsonb('coins'),
+    classFeatures: jsonb('class_features').default([]),
     speciesTraits: text('species_traits').default(''),
     feats: text('feats').default(''),
     armorTraining: varchar('armor_training', {length: 255}).default(''),
     weaponTraining: varchar('weapon_training', {length: 255}).default(''),
     toolTraining: varchar('tool_training', {length: 255}).default(''),
-
     personalityAndHistory: text('personality_and_history').default(''),
     alignment: varchar('alignment', {length: 100}).default(''),
     languages: text('languages').default(''),
-
-    campaignNotes: jsonb('campaign_notes').notNull().default([]),
-    customFields: jsonb('custom_fields').notNull().default([]),
-
-    bonuses: jsonb('bonuses').notNull().default({
+    campaignNotes: jsonb('campaign_notes').default([]),
+    customFields: jsonb('custom_fields').default([]),
+    bonuses: jsonb('bonuses').default({
         proficiencyBonus: 0,
         initiative: 0,
         savingThrows: {},
         skills: {},
     }),
-
-    userId: uuid('user_id'),           // nullable — fase 2
-    isShared: boolean('is_shared').default(false).notNull(),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (t) => [
+    index('idx_characters_user_updated').on(t.userId, t.updatedAt),
+]);
 
 export type CharacterRecord = typeof characters.$inferSelect;
 export type NewCharacterRecord = typeof characters.$inferInsert;
-export type BasicCharacterRecord = Pick<CharacterRecord, 'id' | 'name' | 'class' | 'subclass' | 'species' | 'level' | 'hitPoints' | 'createdAt' | 'updatedAt' | 'userId' | 'isShared'>
-export type SharedCharacterRecord = Pick<CharacterRecord, 'id' | 'name' | 'class' | 'level' | 'species' | 'background' | 'subclass' | 'abilities' | 'skills' | 'armorClass' | 'hitPoints' | 'speed' | 'weapons' | 'spells' | 'classFeatures' | 'speciesTraits' | 'feats' | 'hitDice' | 'deathSaves' | 'spellSlots' | 'spellcastingAbility' | 'bonuses' | 'personalityAndHistory' | 'alignment' | 'languages'>
+export type BasicCharacterRecord = Pick<CharacterRecord, 'id' | 'system' | 'name' | 'level' | 'card' | 'createdAt' | 'updatedAt' | 'userId' | 'isShared'>
 
 export const users = pgTable('users', {
     id:            uuid('id').primaryKey().defaultRandom(),
