@@ -21,6 +21,12 @@ export class CharacterRepository {
                 updatedAt: characters.updatedAt,
                 userId: characters.userId,
                 isShared: characters.isShared,
+                // TRANSITÓRIO (remover com a limpeza das colunas legadas): campos que
+                // o card do frontend anterior à Fase 1 lê. Ver legacyListFields.
+                class: characters.class,
+                subclass: characters.subclass,
+                species: characters.species,
+                hitPoints: characters.hitPoints,
             })
             .from(characters)
             .where(eq(characters.userId, userId))

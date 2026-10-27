@@ -2,6 +2,7 @@ import {BadRequestException} from '@nestjs/common';
 import type {ZodError} from 'zod';
 import {BasicCharacterRecord, CharacterRecord} from '../../database/schema';
 import {CharacterCardData, ENVELOPE_KEYS, SheetData} from './systems/system.types';
+import {legacyListFields} from './character.legacy-mirror';
 
 /*
  * Conversão entre o formato de banco e o formato "wire" (API <-> frontend).
@@ -16,7 +17,7 @@ import {CharacterCardData, ENVELOPE_KEYS, SheetData} from './systems/system.type
 export type CharacterListItem = Pick<
     BasicCharacterRecord,
     'id' | 'system' | 'name' | 'level' | 'isShared' | 'createdAt' | 'updatedAt'
-> & { card: CharacterCardData };
+> & { card: CharacterCardData } & ReturnType<typeof legacyListFields>;
 
 export type WireSheet = SheetData & {
     id: string;
@@ -40,6 +41,7 @@ export function toListItem(record: BasicCharacterRecord): CharacterListItem {
         card: record.card as CharacterCardData,
         createdAt: record.createdAt,
         updatedAt: record.updatedAt,
+        ...legacyListFields(record),
     };
 }
 

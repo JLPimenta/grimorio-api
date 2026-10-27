@@ -1,4 +1,4 @@
-import {NewCharacterRecord} from '../../database/schema';
+import {BasicCharacterRecord, NewCharacterRecord} from '../../database/schema';
 import {SheetData} from './systems/system.types';
 
 /*
@@ -12,6 +12,22 @@ import {SheetData} from './systems/system.types';
  *
  * Só se aplica a fichas dnd5_5e; outros sistemas deixam as colunas nulas.
  */
+/**
+ * Campos que o dashboard do frontend ANTERIOR à Fase 1 lê de cada item da
+ * listagem (`character.hitPoints.current` sem checagem). Sem eles, um frontend
+ * antigo — deploy fora de ordem ou aba aberta antes da atualização — quebra a
+ * tela inteira com "Cannot read properties of undefined (reading 'current')".
+ * Fichas de outros sistemas recebem valores neutros.
+ */
+export function legacyListFields(record: BasicCharacterRecord) {
+    return {
+        class: record.class ?? '',
+        subclass: record.subclass ?? '',
+        species: record.species ?? '',
+        hitPoints: (record.hitPoints as object | null | undefined) ?? {current: 0, max: 0, temp: 0},
+    };
+}
+
 export function legacyColumnsFor(system: string, data: SheetData): Partial<NewCharacterRecord> {
     if (system !== 'dnd5_5e') return {};
     const d = data as Record<string, any>;

@@ -141,13 +141,24 @@ describe('CharacterService (envelope multi-sistema)', () => {
         await expect(service.findOneForUser(id, 'u2')).rejects.toBeInstanceOf(ForbiddenException);
     });
 
-    it('listagem devolve só o envelope + card', async () => {
+    it('listagem devolve o envelope + card, sem o blob', async () => {
         await service.create({name: 'Thorin'}, 'u1');
         const [item] = await service.findAll('u1');
 
-        expect(Object.keys(item).sort()).toEqual(
-            ['card', 'createdAt', 'id', 'isShared', 'level', 'name', 'system', 'updatedAt'],
-        );
+        expect(item).not.toHaveProperty('data');
+        expect(item).toMatchObject({name: 'Thorin', system: 'dnd5_5e', level: 1});
+        expect(item.card.stats).toEqual(['Proficiência +2', 'PV 10/10']);
+    });
+
+    it('listagem continua compatível com o frontend anterior à Fase 1', async () => {
+        // O card antigo lê character.hitPoints.current sem checagem.
+        const {id} = await service.create({name: 'Thorin'}, 'u1');
+        await service.update(id, {class: 'Guerreiro', species: 'Anão', hitPoints: {current: 7, max: 12, temp: 0}}, 'u1');
+        await service.create({name: 'Kara', system: 'tormenta20'}, 'u1');
+        const [d55, t20] = await service.findAll('u1');
+
+        expect(d55).toMatchObject({class: 'Guerreiro', species: 'Anão', hitPoints: {current: 7, max: 12}});
+        expect(t20.hitPoints).toEqual({current: 0, max: 0, temp: 0});
     });
 
     it('ficha compartilhada não expõe o userId', async () => {

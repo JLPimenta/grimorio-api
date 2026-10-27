@@ -72,6 +72,8 @@ export const characters = pgTable('characters', {
 export type CharacterRecord = typeof characters.$inferSelect;
 export type NewCharacterRecord = typeof characters.$inferInsert;
 export type BasicCharacterRecord = Pick<CharacterRecord, 'id' | 'system' | 'name' | 'level' | 'card' | 'createdAt' | 'updatedAt' | 'userId' | 'isShared'>
+    // TRANSITÓRIO: colunas legadas lidas só para manter clientes antigos funcionando (ver legacyListFields)
+    & Partial<Pick<CharacterRecord, 'class' | 'subclass' | 'species' | 'hitPoints'>>
 
 export const users = pgTable('users', {
     id:            uuid('id').primaryKey().defaultRandom(),
