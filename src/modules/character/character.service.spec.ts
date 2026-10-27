@@ -63,7 +63,7 @@ describe('CharacterService (envelope multi-sistema)', () => {
     });
 
     it('rejeita sistema ainda não registrado', async () => {
-        await expect(service.create({name: 'X', system: 'tormenta20'}, 'u1'))
+        await expect(service.create({name: 'X', system: 'pathfinder'}, 'u1'))
             .rejects.toBeInstanceOf(BadRequestException);
     });
 
@@ -157,5 +157,115 @@ describe('CharacterService (envelope multi-sistema)', () => {
 
         expect(shared).not.toHaveProperty('userId');
         expect(shared.name).toBe('Thorin');
+    });
+});
+
+describe('CharacterService — Tormenta20', () => {
+    let repo: InMemoryRepo;
+    let service: CharacterService;
+
+    beforeEach(() => {
+        repo = new InMemoryRepo();
+        service = new CharacterService(repo as unknown as CharacterRepository);
+    });
+
+    it('cria ficha T20 com defaults próprios e sem colunas legadas', async () => {
+        const sheet = await service.create({name: 'Kara', system: 'tormenta20'}, 'u1');
+        const row = repo.rows.get(sheet.id)!;
+
+        expect(row.system).toBe('tormenta20');
+        expect(Object.keys((row.data as any).skills)).toHaveLength(30);
+        expect(row.data).toHaveProperty('mp');
+        expect(row.data).not.toHaveProperty('abilities');
+        expect(row.class).toBeUndefined(); // espelho legado é só do 5.5e
+        expect(sheet.card.stats).toEqual(['PV 0/0', 'PM 0/0']);
+    });
+
+    it('valida e salva atualização, derivando o card', async () => {
+        const {id} = await service.create({name: 'Kara', system: 'tormenta20'}, 'u1');
+        const updated = await service.update(id, {
+            class: 'Clérigo', race: 'Anão', origin: 'Acólito', level: 5,
+            hp: {max: 20, current: 15, temp: 0}, mp: {max: 6, current: 3, temp: 0},
+            attributes: {for: 1, des: 0, con: 2, int: 0, sab: 4, car: 1},
+            spells: [{
+                id: 's1', circle: 1, name: 'Curar Ferimentos', school: 'Evocação', execution: 'Padrão',
+                range: 'Toque', target: '1 criatura', duration: 'Instantânea', resistance: '', description: '2d8+2 PV',
+            }],
+        }, 'u1');
+
+        expect(updated.level).toBe(5);
+        expect(updated.card).toEqual({
+            details: [{kind: 'class', text: 'Clérigo'}, {kind: 'origin', text: 'Anão · Acólito'}],
+            stats: ['PV 15/20', 'PM 3/6'],
+        });
+        expect((updated.spells as unknown[])).toHaveLength(1);
+    });
+
+    it('rejeita conteúdo inválido no formato T20', async () => {
+        const {id} = await service.create({name: 'Kara', system: 'tormenta20'}, 'u1');
+
+        await expect(service.update(id, {attributes: {for: 'alto'}}, 'u1')).rejects.toBeInstanceOf(BadRequestException);
+        await expect(service.update(id, {size: 'gigante'}, 'u1')).rejects.toBeInstanceOf(BadRequestException);
+        await expect(service.update(id, {skills: {voar: {trained: true, attribute: 'des', other: 0}}}, 'u1'))
+            .rejects.toBeInstanceOf(BadRequestException);
+        await expect(service.update(id, {spells: [{id: 'x', circle: 6, name: 'Desejo'}]}, 'u1'))
+            .rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('descarta campos de D&D enviados para uma ficha T20', async () => {
+        const {id} = await service.create({name: 'Kara', system: 'tormenta20'}, 'u1');
+        await service.update(id, {armorClass: 18, spellSlots: {}}, 'u1');
+
+        expect(repo.rows.get(id)!.data).not.toHaveProperty('armorClass');
+        expect(repo.rows.get(id)!.data).not.toHaveProperty('spellSlots');
+    });
+});
+
+describe('CharacterService — D&D 5e (2014)', () => {
+    let repo: InMemoryRepo;
+    let service: CharacterService;
+
+    beforeEach(() => {
+        repo = new InMemoryRepo();
+        service = new CharacterService(repo as unknown as CharacterRepository);
+    });
+
+    it('cria ficha 5e própria, sem campos do 5.5e nem colunas legadas', async () => {
+        const sheet = await service.create({name: 'Bruenor', system: 'dnd5e'}, 'u1');
+        const row = repo.rows.get(sheet.id)!;
+        const data = row.data as Record<string, any>;
+
+        expect(row.system).toBe('dnd5e');
+        expect(data.skills.map((s: any) => s.name)).toContain('Blefar');
+        for (const key of ['species', 'subclass', 'feats', 'classFeatures']) expect(data).not.toHaveProperty(key);
+        expect(row.class).toBeUndefined(); // espelho legado é só do 5.5e
+    });
+
+    it('salva campos próprios e deriva o card com a raça', async () => {
+        const {id} = await service.create({name: 'Bruenor', system: 'dnd5e'}, 'u1');
+        const updated = await service.update(id, {
+            class: 'Guerreiro', race: 'Anão', level: 5, ideals: 'Honra',
+            features: [{id: 'f1', name: 'Retomar o Fôlego', description: '1d10 + nível'}],
+            hitPoints: {current: 31, max: 44, temp: 0},
+        }, 'u1');
+
+        expect(updated.ideals).toBe('Honra');
+        expect(updated.card).toEqual({
+            details: [{kind: 'class', text: 'Guerreiro'}, {kind: 'origin', text: 'Anão'}],
+            stats: ['Proficiência +3', 'PV 31/44'],
+        });
+    });
+
+    it('valida os campos próprios do 5e', async () => {
+        const {id} = await service.create({name: 'Bruenor', system: 'dnd5e'}, 'u1');
+        await expect(service.update(id, {features: [{id: 'f1', name: 1}]}, 'u1')).rejects.toBeInstanceOf(BadRequestException);
+        await expect(service.update(id, {characteristics: {age: 'x'.repeat(51)}}, 'u1')).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('descarta campos do 5.5e enviados para uma ficha 5e', async () => {
+        const {id} = await service.create({name: 'Bruenor', system: 'dnd5e'}, 'u1');
+        await service.update(id, {species: 'Elfo', weaponTraining: 'Marciais'}, 'u1');
+        expect(repo.rows.get(id)!.data).not.toHaveProperty('species');
+        expect(repo.rows.get(id)!.data).not.toHaveProperty('weaponTraining');
     });
 });

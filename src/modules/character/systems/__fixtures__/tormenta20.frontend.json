@@ -1,0 +1,271 @@
+{
+  "id": "7b0ff558-36c2-4e5e-94f5-39bb65919311",
+  "system": "tormenta20",
+  "schemaVersion": 1,
+  "createdAt": "2026-10-27T01:43:05.554Z",
+  "updatedAt": "2026-10-27T01:43:05.554Z",
+  "isShared": false,
+  "name": "Kara",
+  "level": 5,
+  "player": "",
+  "race": "Anão",
+  "origin": "",
+  "class": "Clérigo",
+  "deity": "",
+  "xp": 0,
+  "downtimePoints": 0,
+  "attributes": {
+    "for": 0,
+    "des": 0,
+    "con": 0,
+    "int": 0,
+    "sab": 0,
+    "car": 0
+  },
+  "skills": {
+    "acrobacia": {
+      "trained": false,
+      "attribute": "des",
+      "other": 0
+    },
+    "adestramento": {
+      "trained": false,
+      "attribute": "car",
+      "other": 0
+    },
+    "atletismo": {
+      "trained": false,
+      "attribute": "for",
+      "other": 0
+    },
+    "atuacao": {
+      "trained": false,
+      "attribute": "car",
+      "other": 0
+    },
+    "cavalgar": {
+      "trained": false,
+      "attribute": "des",
+      "other": 0
+    },
+    "conhecimento": {
+      "trained": false,
+      "attribute": "int",
+      "other": 0
+    },
+    "cura": {
+      "trained": false,
+      "attribute": "sab",
+      "other": 0
+    },
+    "diplomacia": {
+      "trained": false,
+      "attribute": "car",
+      "other": 0
+    },
+    "enganacao": {
+      "trained": false,
+      "attribute": "car",
+      "other": 0
+    },
+    "fortitude": {
+      "trained": false,
+      "attribute": "con",
+      "other": 0
+    },
+    "furtividade": {
+      "trained": false,
+      "attribute": "des",
+      "other": 0
+    },
+    "guerra": {
+      "trained": false,
+      "attribute": "int",
+      "other": 0
+    },
+    "iniciativa": {
+      "trained": false,
+      "attribute": "des",
+      "other": 0
+    },
+    "intimidacao": {
+      "trained": false,
+      "attribute": "car",
+      "other": 0
+    },
+    "intuicao": {
+      "trained": false,
+      "attribute": "sab",
+      "other": 0
+    },
+    "investigacao": {
+      "trained": false,
+      "attribute": "int",
+      "other": 0
+    },
+    "jogatina": {
+      "trained": false,
+      "attribute": "car",
+      "other": 0
+    },
+    "ladinagem": {
+      "trained": false,
+      "attribute": "des",
+      "other": 0
+    },
+    "luta": {
+      "trained": false,
+      "attribute": "for",
+      "other": 0
+    },
+    "misticismo": {
+      "trained": false,
+      "attribute": "int",
+      "other": 0
+    },
+    "nobreza": {
+      "trained": false,
+      "attribute": "int",
+      "other": 0
+    },
+    "oficio1": {
+      "trained": true,
+      "attribute": "int",
+      "other": 0,
+      "specialty": "Ferreiro"
+    },
+    "oficio2": {
+      "trained": false,
+      "attribute": "int",
+      "other": 0,
+      "specialty": ""
+    },
+    "percepcao": {
+      "trained": false,
+      "attribute": "sab",
+      "other": 0
+    },
+    "pilotagem": {
+      "trained": false,
+      "attribute": "des",
+      "other": 0
+    },
+    "pontaria": {
+      "trained": false,
+      "attribute": "des",
+      "other": 0
+    },
+    "reflexos": {
+      "trained": false,
+      "attribute": "des",
+      "other": 0
+    },
+    "religiao": {
+      "trained": false,
+      "attribute": "sab",
+      "other": 0
+    },
+    "sobrevivencia": {
+      "trained": false,
+      "attribute": "sab",
+      "other": 0
+    },
+    "vontade": {
+      "trained": false,
+      "attribute": "sab",
+      "other": 0
+    }
+  },
+  "hp": {
+    "max": 0,
+    "current": 0,
+    "temp": 0
+  },
+  "mp": {
+    "max": 0,
+    "current": 0,
+    "temp": 0
+  },
+  "defense": {
+    "attribute": "des",
+    "other": 0,
+    "heavyArmor": false,
+    "attributeLimit": 0
+  },
+  "armor": {
+    "name": "",
+    "bonus": 0,
+    "penalty": 0
+  },
+  "shield": {
+    "name": "",
+    "bonus": 0,
+    "penalty": 0
+  },
+  "size": "medio",
+  "speed": "9m",
+  "proficiencies": "",
+  "attacks": [
+    {
+      "id": "a1",
+      "name": "Maça",
+      "attackBonus": "+5",
+      "damage": "1d8+1",
+      "critical": "x2",
+      "damageType": "Impacto",
+      "range": "Corpo a corpo",
+      "notes": ""
+    }
+  ],
+  "raceOriginAbilities": [
+    {
+      "id": "r1",
+      "name": "Devagar e Sempre",
+      "description": "Deslocamento 6m"
+    }
+  ],
+  "classAbilities": [],
+  "spellcasting": {
+    "attribute": "int"
+  },
+  "spells": [
+    {
+      "id": "s1",
+      "circle": 2,
+      "name": "Bênção",
+      "school": "Encantamento",
+      "execution": "Padrão",
+      "range": "Curto",
+      "target": "Aliados",
+      "duration": "Cena",
+      "resistance": "",
+      "description": ""
+    }
+  ],
+  "equipment": [
+    {
+      "id": "e1",
+      "name": "Flechas",
+      "quantity": 20,
+      "spaces": 0.5,
+      "worn": false,
+      "notes": ""
+    }
+  ],
+  "money": {
+    "ts": 0,
+    "to": 0
+  },
+  "description": "",
+  "history": "",
+  "notes": "",
+  "campaignNotes": [
+    {
+      "id": "n1",
+      "category": "npcs",
+      "title": "Aldo",
+      "content": "Ferreiro"
+    }
+  ],
+  "customFields": []
+}
