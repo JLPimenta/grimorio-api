@@ -1,9 +1,8 @@
 import {Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Req, UseGuards} from '@nestjs/common';
 import {CharacterService} from './character.service';
 import {CreateCharacterDto} from './dto/create-character.dto';
-import {UpdateCharacterDto} from './dto/update-character.dto';
 import {OptionalJwtGuard} from "../auth/guards/optional-jwt.guard";
-import {SharedCharacterRecord, UserRecord} from "../../database/schema";
+import {UserRecord} from "../../database/schema";
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 
 interface AuthRequest extends Request {
@@ -30,7 +29,7 @@ export class CharacterController {
     @Get(':id')
     @UseGuards(JwtAuthGuard)
     async findOne(@Param('id') id: string, @Req() req: AuthRequest) {
-        return this.service.assertOwnership(id, req.user.id);
+        return this.service.findOneForUser(id, req.user.id);
     }
 
     @Post()
@@ -41,8 +40,8 @@ export class CharacterController {
 
     @Put(':id')
     @UseGuards(JwtAuthGuard)
-    async update(@Param('id') id: string, @Body() dto: UpdateCharacterDto, @Req() req: AuthRequest) {
-        return this.service.update(id, dto, req.user.id);
+    async update(@Param('id') id: string, @Body() body: Record<string, unknown>, @Req() req: AuthRequest) {
+        return this.service.update(id, body, req.user.id);
     }
 
     @Delete(':id')
